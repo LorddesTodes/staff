@@ -14,14 +14,12 @@ namespace stuff
         public virtual void OnInitializeMelon()
         {
             PMAPIModRegistry.InitPMAPI((MelonMod)this);
-            //ClassInjector.RegisterTypeInIl2Cpp<TestBeh>(new RegisterTypeOptions()
+            ClassInjector.RegisterTypeInIl2Cpp<TestBeh>(new RegisterTypeOptions()
             {
                 Interfaces = Il2CppInterfaceCollection.op_Implicit(new Type[2]
                 {
-                    typeof(ICubeBehavior),
-                    typeof(ISavable)
-                }
-                );
+                    Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
+                });
             });
             this.Registerstabisator();
         }
@@ -37,7 +35,13 @@ namespace stuff
             this.wheelium = CustomSubstanceManager.RegisterSubstance("stabisator", substanceParams, new CustomSubstanceParams()
             {
                 enName = "stabisator",
-                deName = "stabisator"
+                deName = "stabisator",
+                behInit = (cb) =>
+                {
+                    // Adding test behavior
+                    var beh = cb.gameObject.AddComponent<stabi>();
+                    return beh;
+                }
             });
         }
 
@@ -61,13 +65,14 @@ namespace stuff
             //AddCraftingRecipe();
         }
         */
-        public virtual void OnUpdate()
+        public override void OnUpdate()
         {
 
             // Check for key press
             if (Input.GetKeyDown(KeyCode.T))
             {
-                CubeGenerator.GenerateCube(Vector3.op_Addition(GameObject.Find("XR Origin").GetComponent<PlayerMovement>().cameraTransform.position, new Vector3(0.0f, 3f, 1f)), Vector3.one, this.stabisator, (CubeAppearance.SectionState)0, (CubeAppearance.UVOffset)null, "");
+                var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
+                CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 10f, 1f), Vector3.one, stabisator);
             }
         }
 
@@ -152,5 +157,31 @@ namespace stuff
                 return true; // Default to no energy
             }
         }
-    } 
+    }
+
+    public class stabi : MonoBehaviour
+    {
+        void Update()
+        {
+            transform.rotation = Quaternion.identity;
+        }
+        
+        public test(IntPtr ptr) : base(ptr)
+        {
+            // Requesting load of cube save data
+            //CustomSaveManager.RequestLoad(this);
+        }
+
+        CubeBase cubeBase;
+
+        void OnInitialize()
+        {
+            // Get the cube base
+            cubeBase = GetComponent<CubeBase>();
+
+            // Make it hooooooot
+            cubeBase.heat.AddHeat(1000000f);
+        }
+    }
+ 
 }
