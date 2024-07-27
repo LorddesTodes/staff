@@ -1,0 +1,15 @@
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\stuff.csproj.AssemblyReference.cache
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\stuff.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\stuff.AssemblyInfoInputs.cache
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\stuff.AssemblyInfo.cs
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\stuff.csproj.CoreCompileInputs.cache
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\bin\Debug\net6.0\stuff.deps.json
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\bin\Debug\net6.0\stuff.dll
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\bin\Debug\net6.0\stuff.pdb
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\bin\Debug\net6.0\PMAPI.dll
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\bin\Debug\net6.0\PMAPI.pdb
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\stuff.csproj.Up2Date
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\stuff.dll
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\refint\stuff.dll
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\stuff.pdb
+C:\Users\leon\Downloads\Neuer Ordner (22)\staff\staff\stuff\obj\Debug\net6.0\ref\stuff.dll
