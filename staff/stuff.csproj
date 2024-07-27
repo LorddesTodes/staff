@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<PackageType>stuff</PackageType>
+
+		<Title>PMF stuff</Title>
+
+		<AssemblyName>stuff</AssemblyName>
+
+
+		<RootNamespace>stuff</RootNamespace>
+
+
+		<Title>stuff Mod</Title>
+		<Version>1.0.0</Version>
+		
+		<IncludeContentInPack>true</IncludeContentInPack>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<ContentTargetFolders>content</ContentTargetFolders>
+
+		<NoDefaultExcludes>true</NoDefaultExcludes>
+
+		<PackageId>leon.PMF.staff</PackageId>
+		<Description>Templates for PMF</Description>
+		<PackageTags>$(PMFTags);dotnet-new;templates</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="staff\**\*" />
+		<Compile Remove="**\*" />
+	</ItemGroup>
+
+
+
+</Project>
