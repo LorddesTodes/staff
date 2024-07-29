@@ -1,4 +1,4 @@
-﻿using MelonLoader;
+using MelonLoader;
 using Il2Cpp;
 using PMAPI;
 using UnityEngine;
@@ -16,7 +16,7 @@ namespace stuff
     public class stuff : MelonMod
     {
         public static Substance Stabisator;
-        //public static Substance reactor;
+        public static Substance reactor;
         public static Substance uranOre;
         public static Substance refineduran;
         public static Substance beltob;
@@ -36,10 +36,10 @@ namespace stuff
             {
                 Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
             });
-            //ClassInjector.RegisterTypeInIl2Cpp<reactorWork>(new RegisterTypeOptions
-            //{
-            //    Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
-            //}); 
+            ClassInjector.RegisterTypeInIl2Cpp<reactorWork>(new RegisterTypeOptions
+            {
+                Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
+            }); 
             ClassInjector.RegisterTypeInIl2Cpp<belt>(new RegisterTypeOptions
             {
                 Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
@@ -52,7 +52,7 @@ namespace stuff
             Registerstabisator();
             RegisteruranOre();
             Registeruran();
-            //Registerreactor();
+            Registerreactor();
             Registerbelt();
             Registertungsten();
 
@@ -74,6 +74,7 @@ namespace stuff
             if (!CubeMerge.compoundablePairs.ContainsKey(key))
             {
                 // Add the compoundable pair only if the key does not exist
+
                 CubeMerge.compoundablePairs.Add(key, value);
             }
         }
@@ -89,7 +90,7 @@ namespace stuff
             CustomMaterialManager.RegisterMaterial(cmat);
 
             var param = SubstanceManager.GetParameter(Substance.Iron).MemberwiseClone().Cast<SubstanceParameters.Param>();
-            param.displayNameKey = "tungsten";
+            param.displayNameKey = "tungsten_ir_leon";
             param.material = cmat.name;
             param.density = 60f;
             param.strength = 600;
@@ -123,7 +124,7 @@ namespace stuff
             CustomMaterialManager.RegisterMaterial(cmat);
 
             var param = SubstanceManager.GetParameter(Substance.Iron).MemberwiseClone().Cast<SubstanceParameters.Param>();
-            param.displayNameKey = "refineduran";
+            param.displayNameKey = "refineduran_ir_leon";
             param.material = cmat.name;
             param.density = 2.5f;
             param.strength = 10;
@@ -158,7 +159,7 @@ namespace stuff
             CustomMaterialManager.RegisterMaterial(cmat);
 
             var param = SubstanceManager.GetParameter(Substance.Sulfur).MemberwiseClone().Cast<SubstanceParameters.Param>();
-            param.displayNameKey = "uranOre";
+            param.displayNameKey = "uranOre_ir_leon";
             param.material = cmat.name;
             param.density = 2.5f;
             param.strength = 10;
@@ -192,7 +193,7 @@ namespace stuff
             CustomMaterialManager.RegisterMaterial(cmat);
 
             var param = SubstanceManager.GetParameter(Substance.Rubber).MemberwiseClone().Cast<SubstanceParameters.Param>();
-            param.displayNameKey = "stabisator";
+            param.displayNameKey = "stabisator_ir_leon";
             param.material = cmat.name;
             param.density = 2.5f;
             param.strength = 10;
@@ -228,7 +229,7 @@ namespace stuff
             CustomMaterialManager.RegisterMaterial(cmat);
 
             var param = SubstanceManager.GetParameter(Substance.Rubber).MemberwiseClone().Cast<SubstanceParameters.Param>();
-            param.displayNameKey = "belt";
+            param.displayNameKey = "belt_ir_leon";
             param.material = cmat.name;
             param.density = 2f;
             param.strength = 300;
@@ -253,7 +254,7 @@ namespace stuff
             });
 
         }
-        /*
+        
         void Registerreactor()
         {
             Material cmat = new(SubstanceManager.GetMaterial("Iron"))
@@ -265,7 +266,7 @@ namespace stuff
             CustomMaterialManager.RegisterMaterial(cmat);
 
             var param = SubstanceManager.GetParameter(Substance.Iron).MemberwiseClone().Cast<SubstanceParameters.Param>();
-            param.displayNameKey = "reactor";
+            param.displayNameKey = "reactor_ir_leon";
             param.material = cmat.name;
             param.density = 2.5f;
             param.strength = 10;
@@ -288,7 +289,7 @@ namespace stuff
             });
 
         }
-        */
+        
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
             base.OnSceneWasLoaded(buildIndex, sceneName);
@@ -305,11 +306,11 @@ namespace stuff
                 var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
                 CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 10f, 1f), new Vector3(0.1f, 0.1f, 0.1f), beltob);
             }
-            //if (Input.GetKeyDown(KeyCode.W))
-            //{
-            //    var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
-            //    CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 10f, 1f), new Vector3(0.1f, 0.1f, 0.1f), reactor);
-            //}
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
+                CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 10f, 1f), new Vector3(0.1f, 0.1f, 0.1f), reactor);
+            }
             if (Input.GetKeyDown(KeyCode.T))
             {
                 var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
@@ -383,6 +384,10 @@ namespace stuff
                     MelonLogger.Error($"Exception in urore Update: {ex.Message}");
                 }
             }
+            void Start()
+            {
+                //MelonLogger.Msg("OreBeh has started");
+            }
         }
         /*
         public class urore : MonoBehaviour
@@ -432,6 +437,10 @@ namespace stuff
                 // Make it hooooooot
                 //cubeBase.heat.AddHeat(1000000f);
             }
+            void Start()
+            {
+                //MelonLogger.Msg("OreBeh has started");
+            }
         }
 
         public class belt : MonoBehaviour
@@ -447,7 +456,9 @@ namespace stuff
                 // Check if the player is holding this Stabisator
                 var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
                 var heldObject = mv.GetComponent<CubeBase>();
-
+                MelonLogger.Msg(mv);
+                MelonLogger.Msg(heldObject);
+                MelonLogger.Msg(heldObject.GetComponent<CubeBase>().substance);
                 if (heldObject != null && heldObject.GetComponent<CubeBase>().substance == beltob)
                 {
                     // Get the rotation of the held object
@@ -466,6 +477,10 @@ namespace stuff
 
                 // Make it hooooooot
                 //cubeBase.heat.AddHeat(1000000f);
+            }
+            void Start()
+            {
+                //MelonLogger.Msg("OreBeh has started");
             }
         }
 
@@ -492,8 +507,11 @@ namespace stuff
             }
 
 
+            void Start()
+            {
+                //MelonLogger.Msg("OreBeh has started");
+            }
 
-            
 
             void OnInitialize()
             {
@@ -513,7 +531,10 @@ namespace stuff
             {
 
             }
-
+            void Start()
+            {
+                //MelonLogger.Msg("OreBeh has started");
+            }
             void OnInitialize()
             {
 
