@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="PMAPI\**" />
+    <EmbeddedResource Remove="PMAPI\**" />
+    <None Remove="PMAPI\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PMAPI\PMAPI.csproj" />
   </ItemGroup>
 
