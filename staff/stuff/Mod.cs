@@ -1,82 +1,94 @@
-using MelonLoader;
+﻿using MelonLoader;
 using Il2Cpp;
 using PMAPI;
 using UnityEngine;
 using Il2CppInterop.Runtime.Injection;
 using PMAPI.CustomSubstances;
 using PMAPI.OreGen;
-using UnityEngine.SceneManagement;
-using System.Text.Json;
 using Il2CppSystem;
 using System;
+using MelonLoader.TinyJSON;
+using System.Text.Json;
+using static stuff.stuff;
+using System.ComponentModel;
+using System.Net.NetworkInformation;
+
 
 
 namespace stuff
 {
     public class stuff : MelonMod
     {
+        
+
+
         public static Substance Stabisator;
         public static Substance reactor;
         public static Substance uranOre;
         public static Substance refineduran;
-        public static Substance beltob;
         public static Substance tungsten;
+        public static Substance piston_head;
+        public static Substance piston_base;
+        //public static SubstanceManagerr manager;
+
         //public static private GameObject player;
 
         public override void OnInitializeMelon()
         {
-            base.OnInitializeMelon();
+            //base.OnInitializeMelon();
             PMAPIModRegistry.InitPMAPI(this);
 
             ClassInjector.RegisterTypeInIl2Cpp<stabi>(new RegisterTypeOptions
             {
-                Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
+                Interfaces = new[] { typeof(ICubeBehavior) }
             });
             ClassInjector.RegisterTypeInIl2Cpp<urore>(new RegisterTypeOptions
             {
-                Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
+                Interfaces = new[] { typeof(ICubeBehavior) }
             });
             ClassInjector.RegisterTypeInIl2Cpp<reactorWork>(new RegisterTypeOptions
             {
-                Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
-            }); 
-            ClassInjector.RegisterTypeInIl2Cpp<belt>(new RegisterTypeOptions
-            {
-                Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
-            }); 
+                Interfaces = new[] { typeof(ICubeBehavior) }
+            });
             ClassInjector.RegisterTypeInIl2Cpp<nbeh>(new RegisterTypeOptions
             {
-                Interfaces = new[] { typeof(ICubeBehavior), typeof(ISavable) }
+                Interfaces = new[] { typeof(ICubeBehavior) }
             });
+
+            //piston
+            ClassInjector.RegisterTypeInIl2Cpp<pstn_base>(new RegisterTypeOptions
+            {
+                Interfaces = new[] { typeof(ICubeBehavior) }
+            });
+            ClassInjector.RegisterTypeInIl2Cpp<SubstanceID>(new RegisterTypeOptions
+            {
+                Interfaces = new[] { typeof(ICubeBehavior) }
+            }); 
+            //piston end
 
             Registerstabisator();
             RegisteruranOre();
             Registeruran();
             Registerreactor();
-            Registerbelt();
             Registertungsten();
+            RegisterPiston_base();
+            RegisterPiston_head();
+            //manager = new SubstanceManagerr();
+
+            CubeMerge.compoundablePairs.Add(new Il2CppSystem.ValueTuple<Substance, Substance>(Substance.AncientAlloy, Substance.Rubber), new Il2CppSystem.ValueTuple<float, Substance, float>(0.25f, reactor, 1f));
+
 
             CustomOreManager.RegisterCustomOre(uranOre, new CustomOreManager.CustomOreParams
             {
                 chance = 0.1f,
                 substanceOverride = Substance.Stone,
-                maxSize = 0.3f,
-                minSize = 0.3f,
+                maxSize = 0.1f,
+                minSize = 0.1f,
                 alpha = 1f
             });
 
-            
-            var key = new Il2CppSystem.ValueTuple<Substance, Substance>(Substance.Rubber, Substance.AncientAlloy);
-            var value = new Il2CppSystem.ValueTuple<float, Substance, float>(1f, beltob, 2f);
 
-            
-            // Check if the key already exists in the dictionary
-            if (!CubeMerge.compoundablePairs.ContainsKey(key))
-            {
-                // Add the compoundable pair only if the key does not exist
 
-                CubeMerge.compoundablePairs.Add(key, value);
-            }
         }
 
         void Registertungsten()
@@ -104,12 +116,7 @@ namespace stuff
             tungsten = CustomSubstanceManager.RegisterSubstance("tungsten", param, new CustomSubstanceParams
             {
                 enName = "tungsten",
-                deName = "tungsten",
-                behInit = (cb) =>
-                {
-                    var beh = cb.gameObject.AddComponent<nbeh>();
-                    return beh;
-                }
+                deName = "tungsten"
             });
         }
 
@@ -141,7 +148,7 @@ namespace stuff
                 deName = "uran",
                 behInit = (cb) =>
                 {
-                // Adding test behavior
+                    // Adding test behavior
                     var beh = cb.gameObject.AddComponent<nbeh>();
                     return beh;
                 }
@@ -218,43 +225,8 @@ namespace stuff
 
         }
 
-        void Registerbelt()
-        {
-            Material cmat = new(SubstanceManager.GetMaterial("Rubber"))
-            {
-                name = "belt",
-                color = Color.gray
-            };
+        //functional
 
-            CustomMaterialManager.RegisterMaterial(cmat);
-
-            var param = SubstanceManager.GetParameter(Substance.Rubber).MemberwiseClone().Cast<SubstanceParameters.Param>();
-            param.displayNameKey = "belt_ir_leon";
-            param.material = cmat.name;
-            param.density = 2f;
-            param.strength = 300;
-            param.stiffness = 6;
-            param.hardness = 20.0f;
-            param.isFlammable = false;
-            //nbeh
-
-            param.softeningPoint = 200f;
-
-
-            beltob = CustomSubstanceManager.RegisterSubstance("belt", param, new CustomSubstanceParams
-            {
-                enName = "belt",
-                deName = "flißband",
-                behInit = (cb) =>
-                {
-                    // Adding test behavior
-                    var beh = cb.gameObject.AddComponent<belt>();
-                    return beh;
-                }
-            });
-
-        }
-        
         void Registerreactor()
         {
             Material cmat = new(SubstanceManager.GetMaterial("Iron"))
@@ -272,8 +244,10 @@ namespace stuff
             param.strength = 10;
             param.stiffness = 30;
             param.hardness = 4.0f;
-            param.thermalConductivity = 1000f;
+            param.thermalConductivity = 10000f;
             param.isFlammable = false;
+            param.softeningPoint = 1000f;
+            param.isConductor = true;
             //nbeh
 
             reactor = CustomSubstanceManager.RegisterSubstance("reactor", param, new CustomSubstanceParams
@@ -289,27 +263,91 @@ namespace stuff
             });
 
         }
-        
+        //piston stuff
+        void RegisterPiston_base()
+        {
+            Material cmat = new(SubstanceManager.GetMaterial("Iron"))
+            {
+                name = "piston_base",
+                color = Color.gray
+            };
+
+            CustomMaterialManager.RegisterMaterial(cmat);
+
+            var param = SubstanceManager.GetParameter(Substance.Iron).MemberwiseClone().Cast<SubstanceParameters.Param>();
+            param.displayNameKey = "piston_base_ir_leon";
+            param.material = cmat.name;
+            param.density = 2.5f;
+            param.strength = 30;
+            param.stiffness = 0;
+            param.hardness = 4.0f;
+            param.thermalConductivity = 0f;
+            param.isFlammable = false;
+            param.softeningPoint = 100000000;
+            //nbeh
+
+            piston_base = CustomSubstanceManager.RegisterSubstance("piston_base", param, new CustomSubstanceParams
+            {
+                enName = "piston base",
+                deName = "piston unten",
+                behInit = (cb) =>
+                {
+                    // Adding test behavior
+                    var beh = cb.gameObject.AddComponent<pstn_base>();
+                    
+                    return beh;
+                }
+            });
+        }
+        void RegisterPiston_head()
+        {
+            Material cmat = new(SubstanceManager.GetMaterial("Iron"))
+            {
+                name = "piston_head",
+                color = Color.gray
+            };
+
+            CustomMaterialManager.RegisterMaterial(cmat);
+
+            var param = SubstanceManager.GetParameter(Substance.Iron).MemberwiseClone().Cast<SubstanceParameters.Param>();
+            param.displayNameKey = "piston_head_ir_leon";
+            param.material = cmat.name;
+            param.density = 2.5f;
+            param.strength = 30;
+            param.stiffness = 0;
+            param.hardness = 4.0f;
+            param.thermalConductivity = 0f;
+            param.isFlammable = false;
+            param.softeningPoint = 100000000;
+            //nbeh
+
+            piston_head = CustomSubstanceManager.RegisterSubstance("piston_head", param, new CustomSubstanceParams
+            {
+                enName = "piston head",
+                deName = "piston kopf",
+
+            });
+
+        }
+
+        //stuff
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
             base.OnSceneWasLoaded(buildIndex, sceneName);
 
             MelonLogger.Msg("Hello Primitier!");
         }
-        
+
         public override void OnUpdate()
         {
             base.OnUpdate();
             // Check for key press
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
-                CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 10f, 1f), new Vector3(0.1f, 0.1f, 0.1f), beltob);
-            }
-            if (Input.GetKeyDown(KeyCode.W))
+            
+            if (Input.GetKeyDown(KeyCode.Y))
             {
                 var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
                 CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 10f, 1f), new Vector3(0.1f, 0.1f, 0.1f), reactor);
+                CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 10f, 1f), new Vector3(0.1f, 0.1f, 0.15f), Substance.LED);
             }
             if (Input.GetKeyDown(KeyCode.T))
             {
@@ -327,49 +365,55 @@ namespace stuff
                 CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 11f, 1f), new Vector3(0.1f, 0.1f, 0.1f), Substance.AncientAlloy);
                 CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 10f, 1f), new Vector3(0.1f, 0.1f, 0.1f), Substance.Rubber);
             }
-            if (Input.GetKeyDown(KeyCode.E))
+            if (Input.GetKeyDown(KeyCode.X))
             {
                 var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
                 CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 11f, 1f), new Vector3(0.1f, 0.1f, 0.1f), uranOre);
             }
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
+                GameObject generatedCube = CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 3f, 1f), new Vector3(0.1f, 0.1f, 0.1f), piston_head);
+                string id = System.Guid.NewGuid().ToString();
+                //manager.substances.Add(id, generatedCube);
+                var idComponent = generatedCube.AddComponent<SubstanceID>();
+                idComponent.id = id;
+
+                GameObject generatedCubeb = CubeGenerator.GenerateCube(mv.cameraTransform.position + new Vector3(0f, 2f, 1f), new Vector3(0.1f, 0.1f, 0.1f), piston_base);
+                //substances.Add(id, generatedCube);
+                var idComponentb = generatedCubeb.GetComponent<pstn_base>();
+                idComponentb.maxlenght = 4;
+                idComponentb.speed = 0.01f;
+                idComponentb.head_id = id;
+                
+            }
         }
-        
+
         public class urore : MonoBehaviour
         {
+
+            public urore(System.IntPtr ptr) : base(ptr)
+            {
+
+            }
+
             CubeBase cubeBase;
-            bool updated = true;
+            bool updated = false;
 
             void OnInitialize()
             {
-                try
-                {
-                    MelonLogger.Msg("uranore initialized");
-                    // Get the cube base
-                    cubeBase = GetComponent<CubeBase>();
-                    if (cubeBase == null)
-                    {
-                        return;
-                    }
-                    cubeBase.enabled = true;
-                    updated = false;
-                }
-                catch (System.Exception ex)
-                {
-                    MelonLogger.Error($"Exception in urore OnInitialize: {ex.Message}");
-                }
+                // Get the cube base
+                cubeBase = GetComponent<CubeBase>();
+                cubeBase.enabled = true;
+                //MelonLogger.Msg("OreBeh has initialized");
             }
 
             void Update()
             {
-                try
-                {
+
                     if (!updated)
                     {
-                        if (cubeBase == null)
-                        {
-                            MelonLogger.Error("cubeBase is null in Update");
-                            return;
-                        }
+
 
                         // Check if the cube is hot enough to be transformed
                         if (cubeBase.heat.GetCelsiusTemperature() > 600.0)
@@ -378,64 +422,46 @@ namespace stuff
                             updated = true;
                         }
                     }
-                }
-                catch (System.Exception ex)
-                {
-                    MelonLogger.Error($"Exception in urore Update: {ex.Message}");
-                }
+
             }
             void Start()
             {
                 //MelonLogger.Msg("OreBeh has started");
             }
         }
-        /*
-        public class urore : MonoBehaviour
+
+        public class stabi : MonoBehaviour
         {
-            CubeBase cubeBase;
-            bool updated = true;
-            void OnInitialize()
-            {
-                MelonLogger.Msg("uranore");
-                // Get the cube base
-                cubeBase = GetComponent<CubeBase>();
-                cubeBase.enabled = true;
-                updated = false;
-                //MelonLogger.Msg("OreBeh has initialized");
-            }
+
             void Update()
             {
                 if (!updated)
                 {
-                    cubeBase = GetComponent<CubeBase>();
-                    // check if the cube is hot enough to be transformed
-                    if (cubeBase.heat.GetCelsiusTemperature() > 600.0)
+                    // Ensure the stabi object's rotation is set to identity (i.e., no rotation)
+                    //transform.rotation = Quaternion.identity;
+                    transform.rotation = Quaternion.identity;
+
+                    foreach (Transform child in transform)
                     {
-                        //MelonLogger.Msg("Hit temp target to turn into refined uran");
-                        cubeBase.ChangeSubstance(refineduran);
-                        updated = true;
+                        child.rotation = Quaternion.identity;
                     }
                 }
             }
-        }*/
-        public class stabi : MonoBehaviour
-        {
-            CubeBase cubeBase;
 
-            void Update()
+            public stabi(System.IntPtr ptr) : base(ptr)
             {
-                // Ensure the stabi object's rotation is set to identity (i.e., no rotation)
-                    transform.rotation = Quaternion.identity;
 
             }
+
+            CubeBase cubeBase;
+            bool updated = false;
 
             void OnInitialize()
             {
                 // Get the cube base
                 cubeBase = GetComponent<CubeBase>();
-
-                // Make it hooooooot
-                //cubeBase.heat.AddHeat(1000000f);
+                cubeBase.enabled = true;
+                //MelonLogger.Msg("OreBeh has initialized");
             }
             void Start()
             {
@@ -443,66 +469,53 @@ namespace stuff
             }
         }
 
-        public class belt : MonoBehaviour
-        {
-            CubeBase cubeBase;
-            Quaternion rot;
-
-            void Update()
-            {
-                // Ensure the stabi object's rotation is set to identity (i.e., no rotation)
-                
-
-                // Check if the player is holding this Stabisator
-                var mv = GameObject.Find("XR Origin").GetComponent<PlayerMovement>();
-                var heldObject = mv.GetComponent<CubeBase>();
-                MelonLogger.Msg(mv);
-                MelonLogger.Msg(heldObject);
-                MelonLogger.Msg(heldObject.GetComponent<CubeBase>().substance);
-                if (heldObject != null && heldObject.GetComponent<CubeBase>().substance == beltob)
-                {
-                    // Get the rotation of the held object
-                    rot = heldObject.transform.rotation;
-                }else
-                {
-                    transform.rotation = rot;
-                }
-            }
-
-            void OnInitialize()
-            {
-                // Get the cube base
-                rot = Quaternion.identity;
-                cubeBase = GetComponent<CubeBase>();
-
-                // Make it hooooooot
-                //cubeBase.heat.AddHeat(1000000f);
-            }
-            void Start()
-            {
-                //MelonLogger.Msg("OreBeh has started");
-            }
-        }
 
         public class reactorWork : MonoBehaviour
         {
-            CubeBase cubeBase;
             float maintemp = 3000f;
-            float temp = 0f;
+            float temp;
+            float ctemp;
             float inttemp = 696f;
+            float explodetemp = 3000f;
+            float genspeed = 0.01f;
+            float maxpower = 100f;
 
+            public reactorWork(System.IntPtr ptr) : base(ptr)
+            {
+
+            }
+
+            CubeBase cubeBase;
+            bool updated = false;
+
+            void OnInitialize()
+            {
+                // Get the cube base
+                cubeBase = GetComponent<CubeBase>();
+                cubeBase.enabled = true;
+                //MelonLogger.Msg("OreBeh has initialized");
+            }
 
             void Update()
             {
-                cubeBase = GetComponent<CubeBase>();
-                if (true)
+                if (!updated)
                 {
-                    temp = maintemp - (cubeBase.heat.GetCelsiusTemperature()+1);
+                    temp = maintemp - (cubeBase.heat.GetCelsiusTemperature() + 1);
                     if (temp >= inttemp)
                     {
                         temp = inttemp;
                     }
+                    ctemp = cubeBase.heat.Temperature;
                     cubeBase.heat.AddHeat(temp);
+                    float en = cubeBase.electricPart.energy;
+                    MelonLogger.Msg(en.ToString());
+                    //MelonLogger.Msg(Il2CppSystem.Math.Max(1 + (temp * genspeed), maxpower));
+                    //cubeBase.electricPart.energy = Il2CppSystem.Math.Max(en + (temp * genspeed),maxpower);
+                    if (explodetemp <= ctemp)
+                    {
+                        cubeBase.AncientExplode();
+                        //Destroy(cubeBase);
+                    }
                 }
             }
 
@@ -512,16 +525,6 @@ namespace stuff
                 //MelonLogger.Msg("OreBeh has started");
             }
 
-
-            void OnInitialize()
-            {
-                // Get the cube base
-                
-
-                // Make it hooooooot
-                //cubeBase.heat.AddHeat(1000000f);
-                //cubeBase.
-            }
 
         }
 
@@ -541,5 +544,142 @@ namespace stuff
             }
 
         }
+        //piston beh
+        
+        public class pstn_base : MonoBehaviour
+        {
+
+            public pstn_base(System.IntPtr ptr) : base(ptr)
+            {
+
+            }
+
+            CubeBase cubeBase;
+            public float maxlenght { get; set; }
+            public float speed { get; set; }
+            public string head_id { get; set; }
+            bool updated = false;
+
+            public void OnFragmentInitialized(CubeBase fragmentCubeBase)
+            {
+                Destroy(cubeBase);
+            }
+            void OnInitialize()
+            {
+                // Get the cube base
+                cubeBase = GetComponent<CubeBase>();
+                cubeBase.enabled = true;
+                //cubeBase.AncientExplode();
+                //Destroy(cubeBase);
+                //cubeBase.maxLife
+                //MelonLogger.Msg("OreBeh has initialized");
+
+            }
+            void OnCollisionEnterReceived()
+            {
+                updated = true;
+                MelonLogger.Msg("cut test");
+            }
+
+            void Update()
+            {
+                if (!updated)
+                {
+                    if (maxlenght < 1)
+                    { maxlenght = 1; }
+                    if (speed <= 0)
+                    { speed = 0.1f; }
+                    //if(!string.IsNullOrEmpty(head_id))
+                    //{ head_id = "null"; }
+                    if (maxlenght != 0 && speed != 0 && head_id != "")
+                    {
+                        string head_id_got = head_id;
+                        Vector3 mypos = cubeBase.gameObject.transform.position;
+                        Vector3 calcpos = mypos + new Vector3(0f, 0.2f, 0f);
+                        Quaternion myrot = transform.rotation;
+                        Vector3 eus = cubeBase.gameObject.transform.eulerAngles;
+                        transform.rotation = Quaternion.identity;
+                        //manager.UpdateSubstance_dir(head_id_got, myrot,eus);
+                        //MelonLogger.Msg("speed:" + speed);
+                        //MelonLogger.Msg("maxlenght:" + maxlenght);
+                        //MelonLogger.Msg("my_piston_head:" + head_id_got);
+                    }
+                    if(head_id == "")
+                    {
+                        updated = true;
+                        cubeBase.AncientExplode();
+                        MelonLogger.Msg("cut test");
+                    }
+                    
+                }
+            }
+
+
+            void Start()
+            {
+                //MelonLogger.Msg("OreBeh has started");
+            }
+
+            
+        }
+        public class SubstanceID : MonoBehaviour
+        {
+            public string id;
+        }
+
+
+        /*public class SubstanceManagerr
+        {
+            public Dictionary<string, GameObject> substances = new Dictionary<string, GameObject>();
+            // Existing methods...
+
+            public void UpdateSubstance_dir(string id, Quaternion newRotation, Vector3 eu)
+            {
+                if (substances.TryGetValue(id, out GameObject substanc))
+                {
+                    //substanc.transform.localRotation = newRotation;
+                    //substanc.gameObject.transform.localRotation = newRotation;
+                    //MelonLogger.Msg(substanc.transform.eulerAngles.ToString());
+                    
+                    Transform gt = substanc.transform;
+                    if (gt != null)
+                    {
+                        MelonLogger.Msg(substanc.transform.transform.ToString());
+                        MelonLogger.Msg(gt.ToString());
+                        gt.rotation = newRotation;
+                    }
+                    //substanc.gameObject.transform.eulerAngles = eu;
+                    //.gameObject.cubeConnector.transform
+
+                }
+            }
+            public void UpdateSubstance_pos(string id, Vector3 newPosition)
+            {
+                if (substances.TryGetValue(id, out GameObject substanc))
+                {
+                    //substanc.gameObject.transform.position = newPosition;
+                    var TransformComponent = substanc.Cast<Transform>();
+
+                    TransformComponent.rotation = Quaternion.identity;
+                }
+            }
+            private void RotateObjectAndChildren(GameObject parent, Quaternion newRotation)
+            {
+                //parent.gameObject.GetComponentsInChildren<Transform>().
+                
+            }
+            public void DeleteSubstanceById(string id)
+            {
+                if (substances.TryGetValue(id, out GameObject substanc))
+                {
+                    substances.Remove(id);
+                    //substanc
+                }
+            }
+
+            // Other existing methods...
+        }*/
+
+        //piston beh end
     }
 }
